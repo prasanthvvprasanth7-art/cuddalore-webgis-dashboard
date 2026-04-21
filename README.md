@@ -12,7 +12,7 @@ This Web GIS Dashboard presents the coastal flood susceptibility mapping of Cudd
 The dashboard was developed to visualize important vector and raster layers related to coastal flood analysis in an interactive environment.
 
 ## Live Dashboard Link
-[Open Dashboard](https://prasanthvvprasanth7-art.github.io/coastal-cuddalore-dashboard/)
+[Open Dashboard](https://prasanthvvprasanth7-art.github.io/cuddalore-webgis-dashboard/)
 
 ## Study Area
 Cuddalore District, Tamil Nadu, India
