@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hybrid Web GIS Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<div id="previewModal" class="preview-modal hidden">
+  <div class="preview-modal-content">
+    <button id="closePreviewModal" class="preview-modal-close" type="button">&times;</button>
+    <img id="previewModalImg" src="" alt="Large Preview">
+    <div id="previewModalTitle" class="preview-modal-title"></div>
+  </div>
+</div>
+<body>
+  <div class="header">
+    <h1>Flood Mapping Of Coastal Cuddalore Web GIS Dashboard</h1>
+  </div>
+
+  <div class="container">
+    <div id="map"></div>
+   <div class="map-section">
+  <div id="map"></div>
+  <button id="resetMapBtn" class="map-reset-btn">Reset View</button>
+
+  <div id="layerPreviewBox" class="layer-preview hidden">
+    <div class="layer-preview-header">
+      <span id="layerPreviewTitle">Layer Preview</span>
+      <button id="closePreviewBtn" type="button">&times;</button>
+    </div>
+    <img id="layerPreviewImg" src="" alt="Layer Preview">
+  </div>
+</div>
+
+    <div id="sidebar">
+      <div class="card">
+        <h3>Database Connection Counts</h3>
+        <p><b>Boundary:</b> <span id="boundaryCount">Loading...</span></p>
+        <p><b>Distance_from_Coast:</b> <span id="coastCount">Loading...</span></p>
+        <p><b>Flood Zones:</b> <span id="floodCount">Loading...</span></p>
+      </div>
+      
+      <div class="card">
+  <div class="card">
+  <div class="card">
+  <h3>Project Info</h3>
+  <div class="project-info">
+    <p><b>Study Area:</b> Cuddalore District, Tamil Nadu</p>
+    <p><b>Theme:</b> Coastal Flood Susceptibility Mapping</p>
+    <p><b>Method:</b> GIS + Machine Learning(Random forest,Linear regression,Gradient boosting)</p>
+    <p><b>Prepared By:</b> Prasanth V</p>
+  </div>
+</div>  
+
+
+  <h3>Legend / Layer Control</h3>
+<button class="collapsible-toggle active" type="button" data-target="vectorLayersContent">
+  <span>Vector Layers</span>
+  <span class="toggle-icon">−</span>
+</button>
+
+<div id="vectorLayersContent" class="collapsible-content">
+<div class="legend-section-title">Vector Layers</div>
+  <div class="legend-row">
+    <label class="legend-item">
+      <input type="checkbox" id="chkBoundary" checked>
+      <span class="legend-color" style="background:red;"></span>
+      Boundary
+    </label>
+    <a href="data/boundary.geojson" download="boundary.geojson" class="download-btn" title="Download Boundary">⬇</a>
+  </div>
+
+  <div class="legend-row">
+    <label class="legend-item">
+      <input type="checkbox" id="chkCoast" checked>
+      <span class="legend-color" style="background:blue;"></span>
+      Distance from Coast
+    </label>
+    <a href="data/coast.geojson" download="coast.geojson" class="download-btn" title="Download Distance from Coast">⬇</a>
+  </div>
+
+  <div class="legend-row">
+    <label class="legend-item">
+      <input type="checkbox" id="chkLithology">
+      <span class="legend-color" style="background:purple;"></span>
+      Lithology
+    </label>
+    <a href="data/lithology.geojson" download="lithology.geojson" class="download-btn" title="Download Lithology">⬇</a>
+  </div>
+
+  <div class="legend-row">
+    <label class="legend-item">
+      <input type="checkbox" id="chkRoadways">
+      <span class="legend-color" style="background:brown;"></span>
+      Roadways
+    </label>
+    <a href="data/roadways.geojson" download="roadways.geojson" class="download-btn" title="Download Roadways">⬇</a>
+  </div>
+
+  <div class="legend-row">
+    <label class="legend-item">
+      <input type="checkbox" id="chkRailways">
+      <span class="legend-color" style="background:green;"></span>
+      Railways
+    </label>
+    <a href="data/railways.geojson" download="railways.geojson" class="download-btn" title="Download Railways">⬇</a>
+  </div>
+
+  <div class="legend-row">
+    <label class="legend-item">
+      <input type="checkbox" id="chkEpr">
+      <span class="legend-color" style="background:magenta;"></span>
+      End point rate
+    </label>
+    <a href="data/epr.geojson" download="epr.geojson" class="download-btn" title="Download EPR">⬇</a>
+  </div>
+
+  <div class="legend-row">
+    <label class="legend-item">
+      <input type="checkbox" id="chkSoil">
+      <span class="legend-color" style="background:darkgoldenrod;"></span>
+      Soil
+    </label>
+    <a href="data/soil.geojson" download="soil.geojson" class="download-btn" title="Download Soil">⬇</a>
+  </div>
+
+  <div class="legend-row">
+    <label class="legend-item">
+      <input type="checkbox" id="chkFlood">
+      <span class="legend-color" style="background:orange;"></span>
+      Flood Zones
+    </label>
+    <a href="data/Floodlayer_RF.geojson" download="Floodlayer_RF.geojson" class="download-btn" title="Download Flood Zones">⬇</a>
+  </div>
+</div>
+<button class="collapsible-toggle active" type="button" data-target="rasterLayersContent">
+  <span>Raster Layers</span>
+  <span class="toggle-icon">−</span>
+</button>
+
+<div id="rasterLayersContent" class="collapsible-content">
+<div class="legend-section-title">Raster Layers</div>
+<div class="legend-row">
+  <label class="legend-item">
+    <input type="checkbox" id="chkRaster">
+    <span class="legend-color" style="background:gray;"></span>
+    Elevation
+  </label>
+  <a href="data/Elevation.png" download="Elevation.png" class="download-btn" title="Download Elevation Raster">⬇</a>
+</div>
+<div class="legend-row">
+  <label class="legend-item">
+    <input type="checkbox" id="chkSlopeRaster">
+    <span class="legend-color" style="background:mediumspringgreen;"></span>
+    Slope
+  </label>
+  <a href="data/slope.png" download="slope.png" class="download-btn" title="Download Slope Raster">⬇</a>
+</div>
+<div class="legend-row">
+  <label class="legend-item">
+    <input type="checkbox" id="chkRainfallRaster">
+    <span class="legend-color" style="background:#4fc3f7;"></span>
+    Rainfall
+  </label>
+  <a href="data/rainfall.png" download="rainfall.png" class="download-btn" title="Download Rainfall Raster">⬇</a>
+</div>
+
+<div class="legend-row">
+  <label class="legend-item">
+    <input type="checkbox" id="chkBDRaster">
+    <span class="legend-color" style="background:#ff7043;"></span>
+    Buildup density
+  </label>
+  <a href="data/BD.png" download="BD.png" class="download-btn" title="Download BD Raster">⬇</a>
+</div>
+
+<div class="legend-row">
+  <label class="legend-item">
+    <input type="checkbox" id="chkDDRaster">
+    <span class="legend-color" style="background:#8bc34a;"></span>
+    Drainage density
+  </label>
+  <a href="data/DD.png" download="DD.png" class="download-btn" title="Download DD Raster">⬇</a>
+</div>
+
+<div class="legend-row">
+  <label class="legend-item">
+    <input type="checkbox" id="chkLULCRaster">
+    <span class="legend-color" style="background:#ab47bc;"></span>
+    LULC
+  </label>
+  <a href="data/LULC.png" download="LULC.png" class="download-btn" title="Download LULC Raster">⬇</a>
+</div>
+
+<div class="legend-row">
+  <label class="legend-item">
+    <input type="checkbox" id="chkSSZRaster">
+    <span class="legend-color" style="background:#26a69a;"></span>
+    Strom surge zone
+  </label>
+  <a href="data/SSZ.png" download="SSZ.png" class="download-btn" title="Download SSZ Raster">⬇</a>
+</div>
+
+<div class="legend-row">
+  <label class="legend-item">
+    <input type="checkbox" id="chkTIZRaster">
+    <span class="legend-color" style="background:#ffa726;"></span>
+    Tidal influence zone
+  </label>
+  <a href="data/TIZ.png" download="TIZ.png" class="download-btn" title="Download TIZ Raster">⬇</a>
+</div>
+</div>
+
+<div class="card ml-outputs-card">
+  <button class="collapsible-toggle" type="button" data-target="mlOutputsContent">
+    <span>ML Outputs</span>
+    <span class="toggle-icon">+</span>
+  </button>
+
+  <div id="mlOutputsContent" class="collapsible-content collapsed">
+
+    <div class="ml-layer-row">
+      <label class="ml-layer-label">
+        <span>
+          <input type="checkbox" id="chkRF">
+          <span class="legend-color" style="background:#ff4d4d;"></span>
+          Random Forest Output
+        </span>
+      </label>
+      <a href="data/randomforest.png" download="randomforest.png" class="download-btn" title="Download randomforest Raster">↓</a>
+    </div>
+
+    <div class="ml-layer-row">
+      <label class="ml-layer-label">
+        <span>
+          <input type="checkbox" id="chkRegression">
+          <span class="legend-color" style="background:#4da6ff;"></span>
+          Regression Output
+        </span>
+      </label>
+      <a href="data/regressionoutput.png" download="regressionoutput.png" class="download-btn" title="Download regressionoutput Raster">↓</a>
+    </div>
+
+    <div class="ml-layer-row">
+      <label class="ml-layer-label">
+        <span>
+          <input type="checkbox" id="chkGB">
+          <span class="legend-color" style="background:#32cd32;"></span>
+          Gradient Boost Output
+        </span>
+      </label>
+      <a href="data/gradientboost.png" download="gradientboost.png" class="download-btn" title="Download gradientboost Raster">↓</a>
+    </div>
+
+  </div>
+</div>
+
+  <h3>Impacts & News Articles</h3>
+  <p class="project-text">
+    View key flood impacts and selected news coverage related to Cuddalore floods.
+  </p>
+  <button class="project-btn" onclick="openImpactsModal()">
+    View Impacts & News
+  </button>
+</div>
+
+<div class="card">
+  <h3>Project Presentation</h3>
+  <p class="project-text">
+    Viewers can read the project presentation here.
+  </p>
+
+  <div class="project-btn-group">
+    <button class="project-btn" onclick="openProjectPDF()">
+      View Project PDF
+    </button>
+
+    <a href="docs/project_presentation.pptx"
+       download="project_presentation.pptx"
+       class="project-btn download-project-btn">
+      Download PPT
+    </a>
+  </div>
+</div>
+
+<div id="projectModal" class="project-modal">
+  <div class="project-modal-content">
+    <span class="close-project-modal" onclick="closeProjectPDF()">&times;</span>
+    <iframe
+      id="projectPDFFrame"
+      src="docs/project_presentation.pdf"
+      width="100%"
+      height="100%">
+    </iframe>
+  </div>
+</div>
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="app.js"></script>
+  <div id="impactsModal" class="impacts-modal">
+  <div class="impacts-modal-content">
+    <span class="close-impacts-modal" onclick="closeImpactsModal()">&times;</span>
+
+    <h2>Flood Impacts & News Articles</h2>
+
+    <div class="impacts-summary">
+      <div class="impact-box">
+        <h3>Key Flood Impacts</h3>
+        <ul>
+          <li>Inundation of low-lying residential areas</li>
+          <li>Damage to roads, houses, and local infrastructure</li>
+          <li>Displacement of people into relief camps</li>
+          <li>Rescue operations using boats and emergency teams</li>
+          <li>Disruption to transport, livelihood, and daily activities</li>
+          <li>Flood relief distribution to affected communities</li>
+        </ul>
+      </div>
+
+      <div class="impact-box">
+        <h3>About This Section</h3>
+        <p>
+          This section presents selected news evidence and documented impacts
+          related to flood events in Cuddalore District. It supports the
+          interpretation of flood vulnerability and ground reality.
+        </p>
+      </div>
+    </div>
+
+    <div class="news-gallery">
+
+      <div class="news-card">
+        <img src="data/news/toi_cuddalore.png" alt="Times of India article">
+        <div class="news-card-body">
+          <h4>Tamil Nadu: Cuddalore gets that sinking feeling</h4>
+          <p>Flooding in low-lying regions and prolonged water stagnation in affected settlements.</p>
+          <a href="#" target="_blank" class="news-link-btn">Read Source</a>
+        </div>
+      </div>
+
+      <div class="news-card">
+        <img src="data/news/indianexpress_rescue.png" alt="Indian Express rescue article">
+        <div class="news-card-body">
+          <h4>Disaster personnel use boats to rescue people in flooded Cuddalore</h4>
+          <p>Emergency response and rescue operations carried out during severe flood conditions.</p>
+          <a href="#" target="_blank" class="news-link-btn">Read Source</a>
+        </div>
+      </div>
+
+      <div class="news-card">
+        <img src="data/news/floodrelief.png" alt="Flood relief distribution article">
+        <div class="news-card-body">
+          <h4>Flood Relief Distribution in Cuddalore District</h4>
+          <p>Relief materials and support distributed to vulnerable and affected communities.</p>
+          <a href="#" target="_blank" class="news-link-btn">Read Source</a>
+        </div>
+      </div>
+
+      <div class="news-card">
+        <img src="data/news/hindu_relief_camps.png" alt="The Hindu relief camps article">
+        <div class="news-card-body">
+          <h4>Cuddalore district administration sets up 191 relief camps</h4>
+          <p>Large-scale preparedness, camp management, and public safety arrangements.</p>
+          <a href="#" target="_blank" class="news-link-btn">Read Source</a>
+        </div>
+      </div>
+
+      <div class="news-card">
+        <img src="data/news/ndtv_burevi.png" alt="NDTV Burevi article">
+        <div class="news-card-body">
+          <h4>Heavy rain and cyclone-related impacts in southern Tamil Nadu</h4>
+          <p>Widespread rainfall effects and associated damages during the flood event period.</p>
+          <a href="#" target="_blank" class="news-link-btn">Read Source</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</body>
+</html>
